@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>VA 4</title>
+</head>
+ <link rel="stylesheet" type="text/css" href="../static/bootstrap.min.css">
+
+<body>
+    <div class="row" style="padding-left: 31px">
+        <h3>Assignment A1 Visualization!!</h3>
+        <hr>
+    </div>
+    <div class="row container-fluid">
+        <div class="col-2" align="center" style="width: 200px;margin-right: -22px;margin-left: 10px;">
+                <div class="row"><h5>Clustering Label</h5><div>
+                <div class="row">
+                    <select onchange="leaveChange(this)" id="labelMenu">
+                    <option value="salary" selected="selected">Salary</option>
+                    <option value="education">Education</option>
+                    <option value="marital-status">Marital Status</option>
+                    <option value="occupation">Occupation</option>
+                    <option value="relationship">Relationship</option>
+                    <option value="race">Race</option>
+                    <option value="sex">Sex</option>
+                    <option value="native-country">Native Country</option>
+                    </select>
+                </div>
+                    <div class="row"><h5>Messages:</h5></div>
+                <div class="row" id="message">Default clustering on Salary label.</div>
+                    <div class="row"><h5>Color Mode:</h5></div>
+                <div class="row">
+                    <div class="btn-group" role="group" aria-label="Basic example" style="margin-left: 25px">
+                      <button id="classbased" type="button" class="btn btn-secondary active" onclick="createCluster(this)">Class-Based</button>
+                      <button id="colorbased" type="button" class="btn btn-secondary" onclick="createCluster(this)">Cluster-Colors</button>
+                    </div>
+
+                </div>
+        </div>
+        <div class="col-6 svg-container" id="content" align="center">
+            <div class="row" id="graph" align="center"></div>
+        </div>
+        <div class="col-4 container" align="center" style="margin-left: 200px">
+            <div class="row" id="heatmap" align="center"></div>
+        </div>
+
+    </div>
+
+</body>
+
+<script src={{ url_for('static', filename='d3.min.js') }}></script>
+<script src={{ url_for('static', filename='jquery-2.1.4.min.js') }}></form>
+<script src={{ url_for('static', filename='bootstrap.min.js')}}></script>
+<script src={{ url_for('static', filename='index.js') }}></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src={{ url_for('static', filename='radviz.js') }}></script>
+
+<script>
+        var e = document.getElementById("labelMenu");
+        var clusterClass = e.options[e.selectedIndex].value;
+        var msg = "Defaultly Selected " +clusterClass+" dataset!!";
+        document.getElementById("message").innerHTML = msg;
+        var tempData = {{data|safe}}
+        console.log(tempData);
+        processData(tempData);
+
+</script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+    $('.btn-group').on('click', '.btn', function() {
+    });
+
+    function updateClusters(){
+        var clb = document.getElementById("classbased");
+        var crb = document.getElementById("colorbased");
+        crb.className.replace(" active", "");
+        clb.className+=" active";
+        $("#heatmap").html("");
+    }
+    function leaveChange(control) {
+        updateClusters()
+        var msg = "Clustering on " +control.value.toString()+" label!!";
+        document.getElementById("message").innerHTML = msg;
+        $("#heatmap").html("");
+        axios.get('http://localhost:5000/labelUpdate?label='+control.value.toString())
+        .then(response => {
+          $("#graph").html("");
+          console.log('response.data');
+          var d = response.data
+          console.log(d);
+          processData(d);
+        })
+        .catch(error => {
+         console.log(error);
+        });
+    }
+
+    function createCluster(control) {
+
+        var e = document.getElementById("labelMenu");
+        var selectedLabel = e.options[e.selectedIndex].value;
+        $(control).addClass('active').siblings().removeClass('active');
+        var colorMode= $('.btn-group > .btn.active').text();
+        console.log(colorMode);
+        console.log("Active button");
+        axios.get('http://localhost:5000/clusterizeA1?label='+selectedLabel.toString()+'&mode='+colorMode.toString())
+        .then(response => {
+          $("#graph").html("");
+          console.log('response.data');
+          var d = response.data
+          console.log(d);
+          processData(d);
+        })
+        .catch(error => {
+         console.log(error);
+        });
+    }
+
+</script>
+</html>

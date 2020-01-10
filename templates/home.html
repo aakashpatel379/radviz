@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>VA 4</title>
+</head>
+ <link rel="stylesheet" type="text/css" href="../static/bootstrap.min.css">
+<body onload="addList()">
+    <div class="row" style="padding-left: 31px">
+        <h3>RadViz Data Visualization!</h3>
+        <hr>
+    </div>
+    <div class="row container-fluid">
+        <div class="col-2" align="center" style="width: 200px;margin-right: -22px;margin-left: 10px;">
+                <div class="row"><h5>Dataset:</h5><div>
+                <div class="row">
+                    <select onchange="leaveChange(this)" id="dataMenu">
+                    <option value="winequality-red" selected="selected">Wine Quality-Red</option>
+                    <option value="winequality-white">Wine Quality- White</option>
+                    <option value="iris">Iris</option>
+                    </select>
+                </div>
+                    <div class="row"><h5>Messages:</h5></div>
+                <div class="row" id="message">You have selected..</div>
+                <div class="row"><h5>Color Mode:</h5></div>
+                <div class="row">
+                    <div class="btn-group" role="group" aria-label="Basic example"  style="margin-left: 25px">
+                      <button id="classbased" type="button" class="btn btn-secondary active" onclick="createCluster(this)">Class-Based</button>
+                      <button id="colorbased" type="button" class="btn btn-secondary" onclick="createCluster(this)" >Cluster-Colors</button>
+                    </div>
+                     <div class="row" style="padding-top: 5px">
+                        <h5>Clustering Parameters</h5>
+                        <div>
+                             Init:
+                             <select id="initParam">
+                                  <option value="k-means++" selected="selected">KMeans++</option>
+                                  <option value="random">Random</option>
+                             </select>
+                        </div>
+                         Rand.State:
+                         <select onchange="changeRState(this)" id="randState">
+                         </select>
+                         <button id="btn_KMean" type="button" onclick="applyAlgoParams(this)" class="btn btn-secondary" >Apply</button>
+
+                     </div>
+                    <a href="visualizeA1Assignment" target="_blank">Assignment 1</a>
+                </div>
+        </div>
+        <div class="col-6 svg-container" id="content" align="center">
+            <div class="row" id="graph" align="center"></div>
+        </div>
+        <div class="col-4 container" align="center" style="margin-left: 200px">
+            <div class="row" id="heatmap" align="center"></div>
+        </div>
+    </div>
+
+</body>
+
+<script src={{ url_for('static', filename='d3.min.js') }}></script>
+<script src={{ url_for('static', filename='jquery-2.1.4.min.js') }}></script>
+<script src={{ url_for('static', filename='bootstrap.min.js')}}></script>
+<script src={{ url_for('static', filename='index.js') }}></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src={{ url_for('static', filename='radviz.js') }}></script>
+
+<script>
+        var e = document.getElementById("dataMenu");
+        var selectdataset = e.options[e.selectedIndex].value;
+        var msg = "Defaultly Selected " +selectdataset+" dataset!!";
+        document.getElementById("message").innerHTML = msg;
+        var tempData = {{data|safe}}
+        console.log(tempData);
+        processData(tempData);
+
+</script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+
+    function addList(){
+            var select = document.getElementById("randState");
+            for(var i = 0; i <= 42; i++) {
+                var option = document.createElement('option');
+                option.text = option.value = i;
+                select.add(option, 0);
+            }
+        }
+    function applyAlgoParams(control) {
+
+        var e = document.getElementById("dataMenu");
+        var selectdataset = e.options[e.selectedIndex].value;
+        var rstate = document.getElementById("randState");
+        var init = document.getElementById("initParam");
+        var selectedInit = init.options[init.selectedIndex].value;
+        var selectedRState =rstate.options[rstate.selectedIndex].value;
+        var clusterelement=document.getElementById("colorbased");
+        $(clusterelement).addClass('active').siblings().removeClass('active');
+
+        $("#heatmap").html("");
+        axios.get('http://localhost:5000/applyAlgoParameters?init='+selectedInit.toString()+'&randomstate='+selectedRState.toString()+"&name="+selectdataset.toString()+"&mode=Cluster-Colors")
+        .then(response => {
+          $("#graph").html("");
+          console.log('response.data');
+          var d = response.data
+          console.log(d);
+          processData(d);
+        })
+        .catch(error => {
+         console.log(error);
+        });
+
+    }
+    function updateClusters(){
+        var clb = document.getElementById("classbased");
+        var crb = document.getElementById("colorbased");
+        crb.className.replace(" active", "");
+        clb.className+=" active";
+        $("#heatmap").html("");
+    }
+    function leaveChange(control) {
+        updateClusters()
+        var msg = "You selected " +control.value.toString()+" dataset!!";
+        document.getElementById("message").innerHTML = msg;
+        $("#heatmap").html("");
+        axios.get('http://localhost:5000/load?name='+control.value.toString())
+        .then(response => {
+          $("#graph").html("");
+          console.log('response.data');
+          var d = response.data
+          console.log(d);
+          processData(d);
+        })
+        .catch(error => {
+         console.log(error);
+        });
+    }
+
+    function createCluster(control) {
+        console.log('Clustermode');
+        $(control).addClass('active').siblings().removeClass('active');
+        var e = document.getElementById("dataMenu");
+        var selectdataset = e.options[e.selectedIndex].value;
+
+        var colorMode= $('.btn-group > .btn.active').text();
+        console.log(colorMode);
+        console.log("Active button");
+        axios.get('http://localhost:5000/clusterize?name='+selectdataset.toString()+'&mode='+colorMode.toString())
+        .then(response => {
+          $("#graph").html("");
+          console.log('response.data');
+          var d = response.data
+          console.log(d);
+          processData(d);
+        })
+        .catch(error => {
+         console.log(error);
+        });
+    }
+
+</script>
+</html>
