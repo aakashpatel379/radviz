@@ -1,8 +1,8 @@
-# RadViz Data Vizualization 
+## RadViz Data Vizualization 
 
 Its a RadViz Data Vizualization web application. Uses the RadViz implementation of Assignment 2 to integrate with backend to provide data. Also visualizes Assignment 1 data.
 
-## Instructions and Features
+### Instructions and Features
 
      - Configure Virtual Environment to run the python v3 code in the system. (Pycharm Preferred)
      - Run Server.py to run the application.
@@ -24,17 +24,24 @@ Its a RadViz Data Vizualization web application. Uses the RadViz implementation 
      - Corelation matrix graph is purged with any change in Dataset.
      - Assignment 1 link takes to new tab for visualizing processed data from assignment-1
      - It works in same manner as the above functionalities. Only difference is clustering label is according to selected label in Clustering Label dropdown.
+### Screenshots
 
+***Fig 1: WebApp Dashboard and Coorrelation Matrix***
 
+<img src="radviz_webapp.png" width=800/>
 
-## Known Limitation
+***Fig 2: Tooltip for Data Point***
+
+<img src="tooltip_datapoint.jpg" width=600/>
+
+### Known Limitation
     
     - Axis label and values sometimes gets cropped in some cases.
     - Legend labels for some datasets get cropped sometimes.
     - With large number of classes K-Mean clustering would have large K and thus will converge after taking sometime.
 
 
-## References
+### References
 
     [1]"WYanChao/RadViz", GitHub, 2019. [Online]. Available: https://github.com/WYanChao/RadViz. [Accessed: 22- Nov- 2019].
 
@@ -44,8 +51,8 @@ Its a RadViz Data Vizualization web application. Uses the RadViz implementation 
 
     [4]"Heatmaps", Plot.ly, 2019. [Online]. Available: https://plot.ly/python/heatmaps/. [Accessed: 23- Nov- 2019].
     
-## License
-### Aakash Patel - B00807065
+### License
+#### Aakash Patel - B00807065
 
 
 
